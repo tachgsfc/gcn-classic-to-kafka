@@ -12,6 +12,13 @@ def main():
 
 
 @main.command()
+def binary():
+    """Process binary (160 byte) formatted GCN Notices."""
+    from .binary import serve_forever
+    serve_forever()
+
+
+@main.command()
 def voevent():
     """Process VOEvent-formatted GCN Notices."""
     from .voevent import serve_forever
