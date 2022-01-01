@@ -7,7 +7,7 @@ license = "NOSA"
 
 [tool.poetry.dependencies]
 click = "*"
-python = "^3.6"
+python = "^3.7"
 pygcn = "*"
 kafka-python = "*"
 
