@@ -4,7 +4,7 @@ import logging
 import socketserver
 import struct
 
-from kafka import KafkaProducer
+from confluent_kafka import Producer
 
 from .common import kafka_topic_for_notice_type
 
@@ -15,7 +15,7 @@ packet_type_struct = struct.Struct('!l')
 
 def serve_forever():
     log.info('Connecting to Kafka')
-    producer = KafkaProducer()
+    producer = Producer()
 
     class GCNBinaryHandler(socketserver.StreamRequestHandler):
 
@@ -28,7 +28,7 @@ def serve_forever():
                                                           'binary')
                 log.info('Sending notice type %d to %s',
                          notice_type, kafka_topic)
-                producer.send(kafka_topic, payload)
+                producer.produce(kafka_topic, payload)
 
     address = ('127.0.0.1', 5190)
     server = socketserver.TCPServer(address, GCNBinaryHandler)
