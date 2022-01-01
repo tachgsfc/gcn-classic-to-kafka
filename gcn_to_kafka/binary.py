@@ -13,9 +13,9 @@ log = logging.getLogger(__name__)
 packet_type_struct = struct.Struct('!l')
 
 
-def serve_forever():
+def serve_forever(config):
     log.info('Connecting to Kafka')
-    producer = Producer()
+    producer = Producer(config)
 
     class GCNBinaryHandler(socketserver.StreamRequestHandler):
 

@@ -10,9 +10,9 @@ from .common import kafka_topic_for_notice_type
 log = logging.getLogger(__name__)
 
 
-def serve_forever():
+def serve_forever(config):
     log.info('Connecting to Kafka')
-    producer = Producer()
+    producer = Producer(config)
 
     def handler(payload, root):
         notice_type = gcn.get_notice_type(root)
