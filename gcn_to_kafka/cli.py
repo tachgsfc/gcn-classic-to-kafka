@@ -7,7 +7,11 @@ import click
 
 
 @click.group()
-@click.option('--config', metavar='FILE.json', help='JSON configuration file for Kafka client. See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md.')
+@click.option(
+    '--config',
+    metavar='FILE.json',
+    help='JSON configuration file for Kafka client. '
+    'See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md.')
 @click.pass_context
 def main(ctx, config):
     """Pump GCN Classic notices to a Kafka broker."""
