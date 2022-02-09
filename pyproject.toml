@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "gcn-to-kafka"
+name = "gcn-classic-to-kafka"
 version = "0.1.0"
 description = "Pump GCN Notices to a Kafka broker"
 authors = ["Leo Singer <leo.singer@ligo.org>"]
@@ -14,7 +14,7 @@ confluent-kafka = "*"
 [tool.poetry.dev-dependencies]
 
 [tool.poetry.scripts]
-gcn-to-kafka = "gcn_to_kafka.cli:main"
+gcn-classic-to-kafka = "gcn_classic_to_kafka.cli:main"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
