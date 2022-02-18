@@ -3,7 +3,6 @@ name = "gcn-classic-to-kafka"
 version = "0.1.0"
 description = "Pump GCN Notices to a Kafka broker"
 authors = ["Leo Singer <leo.singer@ligo.org>"]
-license = "NOSA"
 
 [tool.poetry.dependencies]
 click = "*"
