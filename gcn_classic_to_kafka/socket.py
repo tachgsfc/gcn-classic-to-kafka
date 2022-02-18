@@ -42,6 +42,7 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
                     'Binary (%d) and VOEvent (%d) notice types differ',
                     bin_notice_type, voe_notice_type)
 
+            log.info('Received notice of type %d', bin_notice_type)
             bin_topic = topic_for_notice_type(bin_notice_type, 'binary')
             voe_topic = topic_for_notice_type(voe_notice_type, 'voevent')
             producer.produce(bin_topic, bin_payload)
