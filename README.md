@@ -17,6 +17,9 @@ the same format as notice packets, except that the notice type is
 `gcn.NoticeType.IM_ALIVE`, `gcn.NoticeType.VOE_11_IM_ALIVE`, or
 `gcn.NoticeType.VOE_20_IM_ALIVE`.
 
+Because this protocol does not have any authentication, it must be tunneled
+using a tool like ssh or stunnel.
+
 ## To install
 
     $ pip install .
