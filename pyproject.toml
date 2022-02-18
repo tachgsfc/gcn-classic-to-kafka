@@ -12,9 +12,14 @@ pygcn = "*"
 confluent-kafka = "*"
 
 [tool.poetry.dev-dependencies]
+pytest = "*"
+pytest-asyncio = "*"
 
 [tool.poetry.scripts]
 gcn-classic-to-kafka = "gcn_classic_to_kafka.cli:main"
+
+[tool.pytest.ini_options]
+asyncio_mode = "strict"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -3,7 +3,7 @@
 import gcn
 
 
-def kafka_topic_for_notice_type(notice_type, flavor):
+def topic_for_notice_type(notice_type, flavor):
     """Get a Kafka topic name for the given GCN Classic notice type.
 
     Parameters
@@ -24,6 +24,14 @@ def kafka_topic_for_notice_type(notice_type, flavor):
     >>> kafka_topic_for_notice_type(150, 'voevent')
     'gcn.classic.voevent.LVC_PRELIMINARY'
 
+    >>> kafka_topic_for_notice_type(5000, 'voevent')
+    'gcn.classic.voevent.UNKNOWN'
+
     """
-    notice_type_str = gcn.NoticeType(notice_type).name
+    try:
+        notice_type_enum = gcn.NoticeType(notice_type)
+    except ValueError:
+        notice_type_str = 'UNKNOWN'
+    else:
+        notice_type_str = notice_type_enum.name
     return f'gcn.classic.{flavor}.{notice_type_str}'
