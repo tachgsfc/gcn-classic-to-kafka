@@ -1,5 +1,11 @@
-FROM python:3.9-slim
+FROM python:3.9 AS build
+ENV POETRY_VIRTUALENVS_CREATE false
+RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
 COPY . /src
-RUN PIP_NO_CACHE_DIR=1 pip install /src && rm -rf /src
+WORKDIR /src
+RUN $HOME/.poetry/bin/poetry install --no-dev
+
+FROM python:3.9-slim
+COPY --from=build /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
 ENTRYPOINT ["gcn-classic-to-kafka"]
 USER nobody:nogroup
