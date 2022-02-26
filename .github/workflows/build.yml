@@ -29,6 +29,16 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build Docker image
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          load: true
+          tags: ${{ github.repository }}:test
+
+      - name: Test Docker image
+        run: docker run --rm --user root:root --entrypoint bash ${{ github.repository }}:test -c 'pip install pytest-asyncio && pytest --pyargs gcn_classic_to_kafka'
+
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v3
@@ -37,7 +47,7 @@ jobs:
           tags: |
             type=raw,value=latest,enable=${{ endsWith(github.ref, github.event.repository.default_branch) }}
 
-      - name: Build and push Docker image
+      - name: Push Docker image
         uses: docker/build-push-action@v2
         with:
           context: .
