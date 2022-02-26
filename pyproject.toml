@@ -11,8 +11,10 @@ python = "^3.7"
 pygcn = "*"
 
 [tool.poetry.dev-dependencies]
+flake8 = "*"
 pytest = "*"
 pytest-asyncio = "*"
+pytest-cov = "*"
 
 [tool.poetry.scripts]
 gcn-classic-to-kafka = "gcn_classic_to_kafka.cli:main"

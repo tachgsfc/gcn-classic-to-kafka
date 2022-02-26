@@ -1,4 +1,4 @@
-name: Create and publish Docker image
+name: Build and test
 
 on:
   push:
@@ -21,6 +21,26 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      - name: Install Poetry
+        run: curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python -
+
+      - name: Install package
+        run: poetry install
+
+      - name: Run flake8 linter
+        run: poetry run flake8
+
+      - name: Run unit tests
+        run: poetry run pytest . --cov --cov-report=xml
+
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v2
 
       - name: Log in to the Container registry
         uses: docker/login-action@v1
