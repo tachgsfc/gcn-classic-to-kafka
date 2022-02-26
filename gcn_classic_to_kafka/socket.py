@@ -1,3 +1,4 @@
+"""Protocol handler for GCN socket connection."""
 import asyncio
 import logging
 import struct

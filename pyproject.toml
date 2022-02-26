@@ -6,9 +6,9 @@ authors = ["Leo Singer <leo.singer@ligo.org>"]
 
 [tool.poetry.dependencies]
 click = "*"
+confluent-kafka = "*"
 python = "^3.7"
 pygcn = "*"
-confluent-kafka = "*"
 
 [tool.poetry.dev-dependencies]
 pytest = "*"

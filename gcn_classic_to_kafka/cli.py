@@ -1,53 +1,44 @@
 """Command line interface."""
-import json
+import asyncio
 import logging
+import urllib
 
 import click
 import confluent_kafka
 
+from .socket import client_connected
+
 log = logging.getLogger(__name__)
 
 
-@click.group()
+@click.command()
 @click.option(
-    '--config', metavar='FILE.json',
-    help='JSON configuration file for Kafka client. '
-    'See https://github.com/edenhill/librdkafka/blob/master/CONFIGURATION.md.')
-@click.pass_context
-def main(ctx, config):
+    '--bootstrap-servers', metavar='hostname1,hostname2,hostname3',
+    help='Comma-separated list of Kafka bootstrap servers')
+@click.option(
+    '--listen', type=str, default=':8081', show_default=True,
+    help='Hostname and port to listen on for GCN Classic')
+def main(bootstrap_servers, listen):
     """Pump GCN Classic notices to a Kafka broker."""
     logging.basicConfig(level=logging.INFO)
 
-    if config:
-        with open(config, 'r') as f:
-            config = json.load(f)
-    else:
-        config = {}
+    # Parse netloc like it is done for HTTP URLs.
+    # This ensures that we will get the correct behavior for hostname:port
+    # splitting even for IPv6 addresses.
+    listen_url = urllib.parse.urlparse(f'http://{listen}')
+
+    config = {
+        'bootstrap.servers': bootstrap_servers,
+        'client.id': __package__,
+    }
 
     producer = confluent_kafka.Producer(config)
-
-    ctx.ensure_object(dict)
-    ctx.obj['producer'] = producer
-
-
-@main.command()
-@click.pass_context
-@click.option(
-    '--host', type=str, default='127.0.0.1', show_default=True,
-    help='Hostname to listen on for GCN Classic')
-@click.option(
-    '--port', type=int, default=8081, show_default=True,
-    help='Port to listen on for GCN Classic')
-def binary(ctx, host, port):
-    """Ingest binary and VOEvent notices."""
-    import asyncio
-    from .socket import client_connected
-
-    client = client_connected(ctx.obj['producer'])
+    client = client_connected(producer)
 
     async def serve():
-        server = await asyncio.start_server(client, host, port)
-        log.info('Listening on %s:%d', host, port)
+        server = await asyncio.start_server(
+            client, listen_url.hostname, listen_url.port)
+        log.info('Listening on %s', listen_url.netloc)
         async with server:
             await server.serve_forever()
 
