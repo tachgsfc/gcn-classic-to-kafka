@@ -13,7 +13,7 @@ log = logging.getLogger(__name__)
 
 @click.command()
 @click.option(
-    '--bootstrap-servers',
+    '--bootstrap-server',
     metavar='hostname1,hostname2,hostname3', required=True,
     help='Comma-separated list of Kafka bootstrap servers')
 @click.option(
