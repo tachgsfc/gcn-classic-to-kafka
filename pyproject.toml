@@ -20,6 +20,9 @@ pytest-cov = "*"
 gcn-classic-to-kafka = "gcn_classic_to_kafka.cli:main"
 
 [tool.coverage.run]
+source = [
+    "gcn_classic_to_kafka"
+]
 omit = [
     "*/test/*"
 ]
