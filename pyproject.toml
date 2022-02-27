@@ -19,6 +19,11 @@ pytest-cov = "*"
 [tool.poetry.scripts]
 gcn-classic-to-kafka = "gcn_classic_to_kafka.cli:main"
 
+[tool.coverage.run]
+omit = [
+    "*/test/*"
+]
+
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
