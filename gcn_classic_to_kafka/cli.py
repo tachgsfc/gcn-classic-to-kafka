@@ -19,7 +19,7 @@ log = logging.getLogger(__name__)
 @click.option(
     '--listen', type=str, default=':8081', show_default=True,
     help='Hostname and port to listen on for GCN Classic')
-def main(bootstrap_servers, listen):
+def main(bootstrap_server, listen):
     """Pump GCN Classic notices to a Kafka broker."""
     logging.basicConfig(level=logging.INFO)
 
@@ -29,7 +29,7 @@ def main(bootstrap_servers, listen):
     listen_url = urllib.parse.urlparse(f'http://{listen}')
 
     config = {
-        'bootstrap.servers': bootstrap_servers,
+        'bootstrap.servers': bootstrap_server,
         'client.id': __package__,
     }
 
