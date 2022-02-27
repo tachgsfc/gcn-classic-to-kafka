@@ -47,7 +47,7 @@ def kafka_config_from_env(env: dict[str, str], prefix: str) -> dict[str, str]:
 @click.option(
     '--listen', type=str, default=':8081', show_default=True,
     help='Hostname and port to listen on for GCN Classic')
-def main(bootstrap_server, listen):
+def main(listen):
     """Pump GCN Classic notices to a Kafka broker.
 
     Specify the Kafka client configuration in environment variables using the
