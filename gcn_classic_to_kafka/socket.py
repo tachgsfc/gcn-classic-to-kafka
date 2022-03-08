@@ -56,7 +56,7 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
             producer.produce(bin_topic, bin_payload)
             producer.produce(voe_topic, voe_payload)
 
-        peer, _ = writer.get_extra_info('peername')
+        peer, *_ = writer.get_extra_info('peername')
         log.info('Client connected from %s', peer)
         try:
             while True:
