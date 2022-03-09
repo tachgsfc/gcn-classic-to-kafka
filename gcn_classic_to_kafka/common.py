@@ -28,10 +28,10 @@ def topic_for_notice_type(notice_type, flavor):
     Example
     -------
 
-    >>> kafka_topic_for_notice_type(150, 'voevent')
+    >>> topic_for_notice_type(150, 'voevent')
     'gcn.classic.voevent.LVC_PRELIMINARY'
 
-    >>> kafka_topic_for_notice_type(5000, 'voevent')
+    >>> topic_for_notice_type(5000, 'voevent')
     'gcn.classic.voevent.UNKNOWN'
 
     """
