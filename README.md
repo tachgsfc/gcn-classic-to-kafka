@@ -10,6 +10,8 @@ consists of the following fields:
     network byte order integer.
 2.  A 4-byte network byte order integer that is the length of the VOEvent.
 3.  The VOEvent.
+2.  A 4-byte network byte order integer that is the length of the text notice.
+3.  The text notice.
 
 GCN Classic does not expect us to send any data back. GCN sends a packet at
 least every 60 seconds, including keepalive packets. Keepalive packets have
