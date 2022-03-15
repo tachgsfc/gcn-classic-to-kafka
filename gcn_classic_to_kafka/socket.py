@@ -33,10 +33,13 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
             bin_payload = await reader.readexactly(bin_length)
             voe_length, = int4.unpack(await reader.readexactly(int4.size))
             voe_payload = await reader.readexactly(voe_length)
-            return bin_payload, voe_payload
+            txt_length, = int4.unpack(await reader.readexactly(int4.size))
+            txt_payload = await reader.readexactly(txt_length)
+            return bin_payload, voe_payload, txt_payload
 
         async def process():
-            bin_payload, voe_payload = await asyncio.wait_for(read(), timeout)
+            bin_payload, voe_payload, txt_payload = await asyncio.wait_for(
+                read(), timeout)
 
             bin_notice_type, = int4.unpack_from(bin_payload)
             if bin_notice_type in ignore_notice_types:
@@ -50,11 +53,16 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
                     'Binary (%d) and VOEvent (%d) notice types differ',
                     bin_notice_type, voe_notice_type)
 
+            # The text notices do not contain a machine-readable notice type.
+            txt_notice_type = bin_notice_type
+
             log.info('Received notice of type %d', bin_notice_type)
             bin_topic = topic_for_notice_type(bin_notice_type, 'binary')
             voe_topic = topic_for_notice_type(voe_notice_type, 'voevent')
+            txt_topic = topic_for_notice_type(txt_notice_type, 'text')
             producer.produce(bin_topic, bin_payload)
             producer.produce(voe_topic, voe_payload)
+            producer.produce(txt_topic, txt_payload)
 
         peer, *_ = writer.get_extra_info('peername')
         log.info('Client connected from %s', peer)

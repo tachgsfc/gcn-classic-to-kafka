@@ -34,7 +34,10 @@ def make_packet(bin_notice_type, voe_notice_type=None):
     </What>
     </voe:VOEvent>
     """.encode()
-    return struct.pack('!l156xl', bin_notice_type, len(voevent)) + voevent
+    text = b'Hello world'
+    return (
+        struct.pack('!l156xl', bin_notice_type, len(voevent)) + voevent +
+        struct.pack('!l', len(text)) + text)
 
 
 @pytest_asyncio.fixture
@@ -95,7 +98,8 @@ async def test_socket(start_server):
     assert not reader.at_eof()
     producer.produce.assert_has_calls([
         mock.call('gcn.classic.binary.LVC_TEST', mock.ANY),
-        mock.call('gcn.classic.voevent.LVC_TEST', mock.ANY)])
+        mock.call('gcn.classic.voevent.LVC_TEST', mock.ANY),
+        mock.call('gcn.classic.text.LVC_TEST', mock.ANY)])
 
     writer.close()
     await writer.wait_closed()
