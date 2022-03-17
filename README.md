@@ -1,5 +1,7 @@
 # GCN Classic to Kafka bridge
 
+[![codecov](https://codecov.io/gh/tachgsfc/gcn-classic-to-kafka/branch/main/graph/badge.svg?token=MXWaQhEaTc)](https://codecov.io/gh/tachgsfc/gcn-classic-to-kafka)
+
 Pump GCN Classic notices to a Kafka broker.
 
 GCN Classic sends binary and VOEvent format notices to us over TCP/IP.
