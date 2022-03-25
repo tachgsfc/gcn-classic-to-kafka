@@ -43,7 +43,7 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
                 read(), timeout)
 
             bin_notice_type, = int4.unpack_from(bin_data)
-            log.info('Received notice of type %d', bin_notice_type)
+            log.info('Received notice of type 0x%08X', bin_notice_type)
             if bin_notice_type in ignore_notice_types:
                 return
 
@@ -52,7 +52,7 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
 
             if bin_notice_type != voe_notice_type:
                 log.warning(
-                    'Binary (%d) and VOEvent (%d) notice types differ',
+                    'Binary (0x%08X) and VOEvent (0x%08X) notice types differ',
                     bin_notice_type, voe_notice_type)
 
             # The text notices do not contain a machine-readable notice type.
