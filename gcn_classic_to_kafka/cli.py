@@ -54,7 +54,10 @@ def kafka_config_from_env(env: dict[str, str], prefix: str) -> dict[str, str]:
 @click.option(
     '--listen', type=str, default=':8081', show_default=True,
     help='Hostname and port to listen on for GCN Classic')
-def main(listen):
+@click.option(
+    '--loglevel', type=click.Choice(logging._levelToName.values()),
+    default='DEBUG', show_default=True, help='Log level')
+def main(listen, loglevel):
     """Pump GCN Classic notices to a Kafka broker.
 
     Specify the Kafka client configuration in environment variables using the
@@ -67,7 +70,7 @@ def main(listen):
     * Replace dashes (`-`) with double underscores (`__`).
     * Replace underscores (`-`) with triple underscores (`___`).
     """
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=loglevel)
 
     # Parse netloc like it is done for HTTP URLs.
     # This ensures that we will get the correct behavior for hostname:port

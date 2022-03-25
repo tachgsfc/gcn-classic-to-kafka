@@ -18,7 +18,7 @@ from .common import topic_for_notice_type
 
 log = logging.getLogger(__name__)
 
-bin_length = 160
+bin_len = 160
 int4 = struct.Struct('!l')
 ignore_notice_types = {gcn.NoticeType.IM_ALIVE,
                        gcn.NoticeType.VOE_11_IM_ALIVE,
@@ -30,22 +30,24 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
     async def client_connected_cb(reader: asyncio.StreamReader,
                                   writer: asyncio.StreamWriter):
         async def read():
-            bin_payload = await reader.readexactly(bin_length)
-            voe_length, = int4.unpack(await reader.readexactly(int4.size))
-            voe_payload = await reader.readexactly(voe_length)
-            txt_length, = int4.unpack(await reader.readexactly(int4.size))
-            txt_payload = await reader.readexactly(txt_length)
-            return bin_payload, voe_payload, txt_payload
+            bin_data = await reader.readexactly(bin_len)
+            voe_len, = int4.unpack(await reader.readexactly(int4.size))
+            voe_data = await reader.readexactly(voe_len)
+            txt_len, = int4.unpack(await reader.readexactly(int4.size))
+            txt_data = await reader.readexactly(txt_len)
+            log.debug('Read %d + %d + %d bytes', bin_len, voe_len, txt_len)
+            return bin_data, voe_data, txt_data
 
         async def process():
-            bin_payload, voe_payload, txt_payload = await asyncio.wait_for(
+            bin_data, voe_data, txt_data = await asyncio.wait_for(
                 read(), timeout)
 
-            bin_notice_type, = int4.unpack_from(bin_payload)
+            bin_notice_type, = int4.unpack_from(bin_data)
+            log.info('Received notice of type %d', bin_notice_type)
             if bin_notice_type in ignore_notice_types:
                 return
 
-            voe = lxml.etree.fromstring(voe_payload)
+            voe = lxml.etree.fromstring(voe_data)
             voe_notice_type = gcn.handlers.get_notice_type(voe)
 
             if bin_notice_type != voe_notice_type:
@@ -56,13 +58,12 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
             # The text notices do not contain a machine-readable notice type.
             txt_notice_type = bin_notice_type
 
-            log.info('Received notice of type %d', bin_notice_type)
             bin_topic = topic_for_notice_type(bin_notice_type, 'binary')
             voe_topic = topic_for_notice_type(voe_notice_type, 'voevent')
             txt_topic = topic_for_notice_type(txt_notice_type, 'text')
-            producer.produce(bin_topic, bin_payload)
-            producer.produce(voe_topic, voe_payload)
-            producer.produce(txt_topic, txt_payload)
+            producer.produce(bin_topic, bin_data)
+            producer.produce(voe_topic, voe_data)
+            producer.produce(txt_topic, txt_data)
 
         peer, *_ = writer.get_extra_info('peername')
         log.info('Client connected from %s', peer)
