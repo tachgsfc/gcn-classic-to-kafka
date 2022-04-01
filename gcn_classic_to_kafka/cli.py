@@ -11,6 +11,8 @@ import logging
 import os
 import re
 import urllib
+import signal
+import sys
 
 import click
 import confluent_kafka
@@ -48,6 +50,11 @@ def kafka_config_from_env(env: dict[str, str], prefix: str) -> dict[str, str]:
             key = env_key_splitter.sub(replacement, key.removeprefix(prefix))
             config[key.lower()] = value
     return config
+
+
+def signal_handler(signum, frame):
+    log.info('Exiting due to signal %d', signum)
+    sys.exit(128 + signum)
 
 
 @click.command()
@@ -89,5 +96,8 @@ def main(listen, loglevel):
         log.info('Listening on %s', listen_url.netloc)
         async with server:
             await server.serve_forever()
+
+    # Exit cleanly on SIGTERM
+    signal.signal(signal.SIGTERM, signal_handler)
 
     asyncio.run(serve())
