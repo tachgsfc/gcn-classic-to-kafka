@@ -61,7 +61,6 @@ jobs:
         with:
           context: .
           platforms: linux/amd64,linux/arm64
-          load: true
           tags: ${{ github.repository }}:test
 
       - name: Test Docker image
