@@ -9,12 +9,14 @@
 import asyncio
 import logging
 import struct
+import time
 
 import confluent_kafka
 import gcn
 import lxml.etree
 
-from .common import topic_for_notice_type
+from .common import notice_type_int_to_str, topic_for_notice_type_str
+from . import metrics
 
 log = logging.getLogger(__name__)
 
@@ -41,6 +43,8 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
         async def process():
             bin_data, voe_data, txt_data = await asyncio.wait_for(
                 read(), timeout)
+            timestamp = time.time()
+            metrics.iamalive_timestamp_seconds.set(timestamp)
 
             bin_notice_type, = int4.unpack_from(bin_data)
             log.info('Received notice of type 0x%08X', bin_notice_type)
@@ -58,18 +62,29 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
             # The text notices do not contain a machine-readable notice type.
             txt_notice_type = bin_notice_type
 
-            bin_topic = topic_for_notice_type(bin_notice_type, 'binary')
-            voe_topic = topic_for_notice_type(voe_notice_type, 'voevent')
-            txt_topic = topic_for_notice_type(txt_notice_type, 'text')
-            producer.produce(bin_topic, bin_data)
-            producer.produce(voe_topic, voe_data)
-            producer.produce(txt_topic, txt_data)
+            for notice_type_int, data, flavor in [
+                [bin_notice_type, bin_data, 'binary'],
+                [voe_notice_type, voe_data, 'voevent'],
+                [txt_notice_type, txt_data, 'text'],
+            ]:
+                notice_type_str = notice_type_int_to_str(notice_type_int)
+                metrics.received_count.labels(
+                    notice_type_int, notice_type_str, flavor).inc()
+                metrics.received_timestamp_seconds.labels(
+                    notice_type_int, notice_type_str, flavor).set(timestamp)
+                topic = topic_for_notice_type_str(notice_type_str, flavor)
+                producer.produce(topic, data)
+
+            # Wait for any outstanding messages to be delivered and delivery
+            # report callbacks to be triggered.
+            producer.poll(0)
 
         peer, *_ = writer.get_extra_info('peername')
         log.info('Client connected from %s', peer)
         try:
-            while True:
-                await process()
+            with metrics.connected.track_inprogress():
+                while True:
+                    await process()
         finally:
             log.info('Closing connection from %s', peer)
             writer.close()

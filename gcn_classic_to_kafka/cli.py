@@ -16,8 +16,10 @@ import sys
 
 import click
 import confluent_kafka
+import prometheus_client
 
 from .socket import client_connected
+from . import metrics
 
 log = logging.getLogger(__name__)
 
@@ -57,14 +59,32 @@ def signal_handler(signum, frame):
     sys.exit(128 + signum)
 
 
+def kafka_delivered_cb(err, msg):
+    successful = not err
+    metrics.delivered_count.labels(
+        msg.topic(), msg.partition(), successful).inc()
+    metrics.delivered_timestamp_seconds.labels(
+        msg.topic(), msg.partition(), successful).set_to_current_time()
+
+
+def host_port(host_port_str):
+    # Parse netloc like it is done for HTTP URLs.
+    # This ensures that we will get the correct behavior for hostname:port
+    # splitting even for IPv6 addresses.
+    return urllib.parse.urlparse(f'http://{host_port_str}')
+
+
 @click.command()
 @click.option(
-    '--listen', type=str, default=':8081', show_default=True,
+    '--listen', type=host_port, default=':8081', show_default=True,
     help='Hostname and port to listen on for GCN Classic')
+@click.option(
+    '--prometheus', type=host_port, default=':8000', show_default=True,
+    help='Hostname and port to listen on for Prometheus metric reporting')
 @click.option(
     '--loglevel', type=click.Choice(logging._levelToName.values()),
     default='DEBUG', show_default=True, help='Log level')
-def main(listen, loglevel):
+def main(listen, prometheus, loglevel):
     """Pump GCN Classic notices to a Kafka broker.
 
     Specify the Kafka client configuration in environment variables using the
@@ -79,21 +99,20 @@ def main(listen, loglevel):
     """
     logging.basicConfig(level=loglevel)
 
-    # Parse netloc like it is done for HTTP URLs.
-    # This ensures that we will get the correct behavior for hostname:port
-    # splitting even for IPv6 addresses.
-    listen_url = urllib.parse.urlparse(f'http://{listen}')
+    prometheus_client.start_http_server(prometheus.port, prometheus.hostname)
+    log.info('Prometheus listening on %s', prometheus.netloc)
 
     config = kafka_config_from_env(os.environ, 'KAFKA_')
     config['client.id'] = __package__
+    config['on_delivery'] = kafka_delivered_cb
 
     producer = confluent_kafka.Producer(config)
     client = client_connected(producer)
 
     async def serve():
         server = await asyncio.start_server(
-            client, listen_url.hostname, listen_url.port)
-        log.info('Listening on %s', listen_url.netloc)
+            client, listen.hostname, listen.port)
+        log.info('GCN server listening on %s', listen.netloc)
         async with server:
             await server.serve_forever()
 
