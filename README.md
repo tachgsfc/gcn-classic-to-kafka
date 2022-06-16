@@ -36,5 +36,10 @@ the following commands to set up and enter the development virtual environment:
     $ poetry install
     $ poetry shell
 
+## To monitor
+
+By default, metrics for [Prometheus] are provided on port 8000.
+
 [Poetry]: https://python-poetry.org/
 [install Poetry]: https://python-poetry.org/docs/#installation
+[Prometheus]: https://prometheus.io/

@@ -10,6 +10,7 @@ click = "*"
 confluent-kafka = "1.8.3+bleeding.edge.2"  # FIXME: change to >= 1.9.0 when confluent-kafka 1.9.0 is released
 python = "^3.9"
 pygcn = "*"
+prometheus-client = "^0.14.1"
 
 [tool.poetry.dev-dependencies]
 flake8 = "*"
