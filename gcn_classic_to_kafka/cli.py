@@ -61,8 +61,7 @@ def signal_handler(signum, frame):
 
 def kafka_delivered_cb(err, msg):
     successful = not err
-    metrics.delivered_count.labels(
-        msg.topic(), msg.partition(), successful).inc()
+    metrics.delivered.labels(msg.topic(), msg.partition(), successful).inc()
 
 
 def host_port(host_port_str):
