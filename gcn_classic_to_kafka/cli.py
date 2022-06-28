@@ -100,7 +100,7 @@ def main(listen, prometheus, loglevel):
     logging.basicConfig(level=loglevel)
 
     prometheus_client.start_http_server(prometheus.port,
-                                        prometheus.hostname or '::/0')
+                                        prometheus.hostname or '0.0.0.0')
     log.info('Prometheus listening on %s', prometheus.netloc)
 
     config = kafka_config_from_env(os.environ, 'KAFKA_')
