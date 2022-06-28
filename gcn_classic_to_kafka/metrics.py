@@ -12,31 +12,19 @@ connected = prometheus_client.Gauge(
     'connected', 'Number of active connections from GCN Classic',
     namespace=__package__)
 
-iamalive_timestamp_seconds = prometheus_client.Gauge(
-    'iamalive_timestamp_seconds',
-    'Timestamp of last GCN notice received, including iamalives',
+iamalive = prometheus_client.Counter(
+    'iamalive',
+    'GCN notices received of any type, including iamalives',
     namespace=__package__)
 
-received_count = prometheus_client.Counter(
-    'received_count',
-    'Number of GCN Classic notices received by notice type and flavor',
+received = prometheus_client.Counter(
+    'received',
+    'GCN Classic notices received by notice type and flavor',
     labelnames=['notice_type_int', 'notice_type_str', 'flavor'],
     namespace=__package__)
 
-received_timestamp_seconds = prometheus_client.Gauge(
-    'notices_received_timestamp_seconds',
-    'Timestamp of last GCN Classic notice received by notice type and flavor',
-    labelnames=['notice_type_int', 'notice_type_str', 'flavor'],
-    unit='seconds', namespace=__package__)
-
-delivered_count = prometheus_client.Counter(
+delivered = prometheus_client.Counter(
     'delivered_count',
-    'Number of Kafka messages delivered',
+    'Kafka messages delivered',
     labelnames=['topic', 'partition', 'successful'],
     namespace=__package__)
-
-delivered_timestamp_seconds = prometheus_client.Gauge(
-    'delivered_timestamp_seconds',
-    'Timestamp of last Kafka message received',
-    labelnames=['topic', 'partition', 'successful'],
-    unit='seconds', namespace=__package__)

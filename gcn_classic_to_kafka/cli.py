@@ -63,8 +63,6 @@ def kafka_delivered_cb(err, msg):
     successful = not err
     metrics.delivered_count.labels(
         msg.topic(), msg.partition(), successful).inc()
-    metrics.delivered_timestamp_seconds.labels(
-        msg.topic(), msg.partition(), successful).set_to_current_time()
 
 
 def host_port(host_port_str):

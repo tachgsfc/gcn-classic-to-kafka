@@ -9,7 +9,6 @@
 import asyncio
 import logging
 import struct
-import time
 
 import confluent_kafka
 import gcn
@@ -43,8 +42,7 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
         async def process():
             bin_data, voe_data, txt_data = await asyncio.wait_for(
                 read(), timeout)
-            timestamp = time.time()
-            metrics.iamalive_timestamp_seconds.set(timestamp)
+            metrics.iamalive.inc()
 
             bin_notice_type, = int4.unpack_from(bin_data)
             log.info('Received notice of type 0x%08X', bin_notice_type)
@@ -68,10 +66,8 @@ def client_connected(producer: confluent_kafka.Producer, timeout: float = 90):
                 [txt_notice_type, txt_data, 'text'],
             ]:
                 notice_type_str = notice_type_int_to_str(notice_type_int)
-                metrics.received_count.labels(
+                metrics.received.labels(
                     notice_type_int, notice_type_str, flavor).inc()
-                metrics.received_timestamp_seconds.labels(
-                    notice_type_int, notice_type_str, flavor).set(timestamp)
                 topic = topic_for_notice_type_str(notice_type_str, flavor)
                 producer.produce(topic, data)
 
