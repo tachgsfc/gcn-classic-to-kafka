@@ -24,7 +24,7 @@ received = prometheus_client.Counter(
     namespace=__package__)
 
 delivered = prometheus_client.Counter(
-    'delivered_count',
+    'delivered',
     'Kafka messages delivered',
     labelnames=['topic', 'partition', 'successful'],
     namespace=__package__)
