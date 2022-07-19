@@ -1,6 +1,6 @@
 # GCN Classic to Kafka bridge
 
-[![codecov](https://codecov.io/gh/tachgsfc/gcn-classic-to-kafka/branch/main/graph/badge.svg?token=MXWaQhEaTc)](https://codecov.io/gh/tachgsfc/gcn-classic-to-kafka)
+[![codecov](https://codecov.io/gh/nasa-gcn/gcn-classic-to-kafka/branch/main/graph/badge.svg?token=MXWaQhEaTc)](https://codecov.io/gh/nasa-gcn/gcn-classic-to-kafka)
 
 Pump GCN Classic notices to a Kafka broker.
 
